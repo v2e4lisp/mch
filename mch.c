@@ -302,9 +302,13 @@ int main(int argc, char **argv) {
                 while (vlist_toa(&vlist, buf, bufsize) == MCH_BUF_OVERFLOW) {
                         bufsize *= 2;
                         if (bufsize > MCH_BUFSIZE_MAX) {
-                                MCH_DIE("Error. The current line is too long." );
+                                MCH_DIE("the current line is too long\n");
                         }
+
                         buf = realloc(buf, bufsize);
+                        if (buf == NULL) {
+                                MCH_DIE("failed to realloc\n");
+                        }
                 }
 
                 fprintf(stdout, "%s\n", buf);
