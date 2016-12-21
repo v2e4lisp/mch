@@ -19,6 +19,6 @@ $ echo '123.65.150.10 - - [23/Aug/2010:03:50:59 +0000] "POST /wordpress3/wp-admi
 /wordpress3/wp-admin/admin-ajax.php
 
 # Example: csv -> tsv (tab is enter by C-v [TAB])
-$ echo 'col1,col2,col3' | ./a.out -i '$,$,$' -o '$3	$1'
+$ echo 'col1,col2,col3' | mch -i '$,$,$' -o '$3	$1'
 col3	col1
 ```
