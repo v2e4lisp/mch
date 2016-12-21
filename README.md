@@ -18,7 +18,7 @@ mch scans lines byte by byte, that is to say in the input pattern if `c` in `$c`
 $ echo '123.65.150.10 - - [23/Aug/2010:03:50:59 +0000] "POST /wordpress3/wp-admin/admin-ajax.php HTTP/1.1" 200 2 "http://www.example.com/wordpress3/wp-admin/post-new.php" "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_4; en-US) AppleWebKit/534.3 (KHTML, like Gecko) Chrome/6.0.472.25 Safari/534.3"' | mch -i '$ $ $ [$] "$ $ $"$' -o '$6'
 /wordpress3/wp-admin/admin-ajax.php
 
-# Example: csv -> tsv (tab is enter by C-v [TAB])
+# Example: csv -> tsv (tab is entered by C-v [TAB])
 $ echo 'col1,col2,col3' | mch -i '$,$,$' -o '$3	$1'
 col3	col1
 ```
