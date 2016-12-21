@@ -18,12 +18,14 @@
 
 #define MCH_DIE(msg)                            \
         do {                                    \
-                fprintf(stderr, msg); exit(1);  \
+                fprintf(stderr, msg);           \
+                exit(1);                        \
         } while (0)
 
-#define MCH_DIE1(fmt, v)                                \
-        do {                                            \
-                fprintf(stderr, fmt, v); exit(1);       \
+#define MCH_DIE1(fmt, v)                        \
+        do {                                    \
+                fprintf(stderr, fmt, v);        \
+                exit(1);                        \
         } while (0)
 
 
@@ -43,6 +45,19 @@ typedef struct vartbl_t {
         val_t *vars;
         int len;
 } vartbl_t;
+
+int val_init(val_t *val);
+int vlist_init(vlist_t *vlist);
+int vlist_append(vlist_t *vlist, val_t *val);
+int vlist_toa(vlist_t *vlist, char *buf, int len);
+int vartbl_init(vartbl_t *vartbl);
+int vartbl_get(vartbl_t *vartbl, int id, val_t **vp);
+
+void *mustmalloc(size_t size);
+int match(char *line, char *patin, vartbl_t *vartbl);
+int parsein(char *patin, vartbl_t *vartbl);
+int parseout(char *patout, vartbl_t *vartbl, vlist_t *vlist);
+
 
 int val_init(val_t *val) {
         val->src = NULL;
@@ -113,6 +128,17 @@ int vartbl_get(vartbl_t *vartbl, int id, val_t **vp) {
         return MCH_OK;
 }
 
+
+void *mustmalloc(size_t size) {
+        void *p;
+
+        if ((p = malloc(size)) == NULL) {
+                MCH_DIE("failed to malloc");
+        }
+        return p;
+}
+
+
 // matches the line against the input pattern and updates vartbl;
 int match(char *line, char *patin, vartbl_t *vartbl) {
         int id;
@@ -181,10 +207,7 @@ int parsein(char *patin, vartbl_t *vartbl) {
         }
 
         vartbl->len = c;
-        vartbl->vars = malloc(c * sizeof(val_t));
-        if (vartbl->vars == NULL) {
-                MCH_DIE("failed to malloc\n");
-        }
+        vartbl->vars = mustmalloc(c * sizeof(val_t));
 
         for (i = 0; i < c; i++) {
                 val_init(&vartbl->vars[i]);
@@ -216,10 +239,7 @@ int parseout(char *patout, vartbl_t *vartbl, vlist_t *vlist) {
                 }
 
                 if (s != NULL) {
-                        val = malloc(sizeof(val_t));
-                        if (val == NULL) {
-                                MCH_DIE("failed to malloc\n");
-                        }
+                        val = mustmalloc(sizeof(val_t));
                         val_init(val);
                         val->src = s;
                         val->len = len;
@@ -290,7 +310,7 @@ int main(int argc, char **argv) {
         parseout(patout, &vartbl, &vlist);
 
         bufsize = MCH_BUFSIZE;
-        buf = malloc(bufsize);
+        buf = mustmalloc(bufsize);
         line = NULL;
         len = 0;
         read = 0;
