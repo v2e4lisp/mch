@@ -285,8 +285,9 @@ int main(int argc, char **argv) {
         int bufsize;
         char *line;
         size_t len;
-        ssize_t read;
 
+        patin = NULL;
+        patout = NULL;
         while ((c = getopt(argc, argv, "i:o:h")) != -1) {
                 switch (c) {
                 case 'i':
@@ -313,8 +314,7 @@ int main(int argc, char **argv) {
         buf = mustmalloc(bufsize);
         line = NULL;
         len = 0;
-        read = 0;
-        while ((read = getline(&line, &len, stdin)) != -1) {
+        while (getline(&line, &len, stdin) != -1) {
                 if (match(line, patin, &vartbl) != MCH_OK) {
                         continue;
                 }
