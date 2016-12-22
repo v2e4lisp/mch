@@ -32,12 +32,16 @@
 typedef struct val_t {
         char *src;
         int len;
-        struct val_t *next;
 } val_t;
 
+typedef struct vnode_t {
+        val_t *val;
+        struct vnode_t *next;
+} vnode_t;
+
 typedef struct vlist_t {
-        val_t *head;
-        val_t *tail;
+        vnode_t *head;
+        vnode_t *tail;
         int len;
 } vlist_t;
 
@@ -47,9 +51,10 @@ typedef struct vartbl_t {
 } vartbl_t;
 
 int val_init(val_t *val);
+int vnode_init(vnode_t *vnode);
 int vlist_init(vlist_t *vlist);
-int vlist_append(vlist_t *vlist, val_t *val);
 int vlist_toa(vlist_t *vlist, char *buf, int len);
+int vlist_append(vlist_t *vlist, vnode_t *vnode);
 int vartbl_init(vartbl_t *vartbl);
 int vartbl_get(vartbl_t *vartbl, int id, val_t **vp);
 
@@ -62,7 +67,13 @@ int parseout(char *patout, vartbl_t *vartbl, vlist_t *vlist);
 int val_init(val_t *val) {
         val->src = NULL;
         val->len = 0;
-        val->next = NULL;
+
+        return MCH_OK;
+}
+
+int vnode_init(vnode_t *vnode) {
+        vnode->val = NULL;
+        vnode->next = NULL;
 
         return MCH_OK;
 }
@@ -77,10 +88,12 @@ int vlist_init(vlist_t *vlist) {
 
 int vlist_toa(vlist_t *vlist, char *buf, int len) {
         val_t *val;
+        vnode_t *vnode;
         int l;
 
         l = 0;
-        for (val = vlist->head; val != NULL; val = val->next) {
+        for (vnode = vlist->head; vnode != NULL; vnode = vnode->next) {
+                val = vnode->val;
                 l += val->len;
                 if (l > len) {
                         return MCH_BUF_OVERFLOW;
@@ -97,13 +110,13 @@ int vlist_toa(vlist_t *vlist, char *buf, int len) {
         return MCH_OK;
 }
 
-int vlist_append(vlist_t *vlist, val_t *val) {
+int vlist_append(vlist_t *vlist, vnode_t *vnode) {
         if (vlist->head == NULL) {
-                vlist->head = vlist->tail = val;
+                vlist->head = vlist->tail = vnode;
         } else {
-                val->next = NULL;
-                vlist->tail->next = val;
-                vlist->tail = val;
+                vnode->next = NULL;
+                vlist->tail->next = vnode;
+                vlist->tail = vnode;
         }
 
         vlist->len++;
@@ -219,6 +232,7 @@ int parsein(char *patin, vartbl_t *vartbl) {
 // setup vlist
 int parseout(char *patout, vartbl_t *vartbl, vlist_t *vlist) {
         char *ch;
+        vnode_t *vnode;
         val_t *val;
         int vi;
         char *s;
@@ -243,7 +257,12 @@ int parseout(char *patout, vartbl_t *vartbl, vlist_t *vlist) {
                         val_init(val);
                         val->src = s;
                         val->len = len;
-                        vlist_append(vlist, val);
+
+                        vnode = mustmalloc(sizeof(vnode_t));
+                        vnode_init(vnode);
+                        vnode->val = val;
+
+                        vlist_append(vlist, vnode);
 
                         s = NULL;
                         len = 0;
@@ -267,7 +286,12 @@ int parseout(char *patout, vartbl_t *vartbl, vlist_t *vlist) {
                         MCH_DIE1("invalid variable $%d\n", vi);
                 }
 
-                vlist_append(vlist, val);
+                vnode = mustmalloc(sizeof(vnode_t));
+                vnode_init(vnode);
+                vnode->val = val;
+
+                vlist_append(vlist, vnode);
+
                 ch--;
         }
 
