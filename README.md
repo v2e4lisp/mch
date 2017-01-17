@@ -9,7 +9,7 @@ For exmaple, the `$` in `$c` matches anything as long as it's not `c`.
 In the output pattern, `$` followed by a number refers to the string that is matched by its counterpart in the input pattern.
 The number works as an index starting from 1; `$0` refers to the whole line. As in the input pattern everything else is what it is, no escape is available.
 
-mch scans lines byte by byte, that is to say in the input pattern if `c` in `$c` is a mulitbyte unicode, mch won't work in this case.
+mch doesn't support unicode.
 
 
 ```
